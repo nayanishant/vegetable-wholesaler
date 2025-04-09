@@ -21,17 +21,17 @@ export async function middleware(request: NextRequest) {
   }
 
   // Not authenticated
-  if (!token) {
+  if (!token && pathname === "/checkout") {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // Role-based protection
-  if (token.role === "admin") {
+  if (token?.role === "admin") {
     // Admin has access to everything
     return NextResponse.next();
   }
 
-  if (token.role === "user") {
+  if (token?.role === "user") {
     // Block access to admin-only routes
     const adminOnlyRoutes = ["/admin", "/admin-dashboard", "/admin/settings"];
     const isAdminOnly = adminOnlyRoutes.some((route) => pathname.startsWith(route));
