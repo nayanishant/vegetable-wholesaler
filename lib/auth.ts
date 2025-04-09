@@ -23,27 +23,29 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Missing email or password.");
         }
-      
+
         await dbConnect();
-      
+
         const user = await User.findOne({ email: credentials.email });
         if (!user || !user.password) {
           throw new Error("No user found or password not set.");
         }
-      
-        const isValid = await bcrypt.compare(credentials.password, user.password);
+
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
         if (!isValid) {
           throw new Error("Invalid email or password.");
         }
-      
+
         return {
           id: user._id.toString(),
           email: user.email,
           name: user.name,
           role: user.role,
         };
-      }
-      
+      },
     }),
   ],
 
@@ -70,8 +72,8 @@ export const authOptions: NextAuthOptions = {
       } else if (dbUser) {
         token.id = dbUser._id.toString();
         token.role = dbUser.role;
-        token.name = dbUser.name || user?.name || token.name || token.email?.split("@")[0];
-
+        token.name =
+          dbUser.name || user?.name || token.name || token.email?.split("@")[0];
       }
 
       return token;

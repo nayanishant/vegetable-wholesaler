@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -33,8 +33,8 @@ export default function Checkout() {
     setTimeout(() => {
       setIsLoading(false);
       toast({
-        title: 'Order Placed!',
-        description: 'Your order has been successfully placed.',
+        title: "Order Placed!",
+        description: "Your order has been successfully placed.",
       });
     }, 2000);
   };
@@ -54,13 +54,22 @@ export default function Checkout() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">Name</Label>
-                    <Input id="firstName" required value={session?.user?.name} />
+                    <Input
+                      id="firstName"
+                      required
+                      defaultValue={session?.user?.name}
+                    />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" required value={session?.user?.email} />
+                  <Input
+                    id="email"
+                    type="email"
+                    required
+                    defaultValue={session?.user?.email}
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -89,7 +98,7 @@ export default function Checkout() {
                   className="w-full bg-green-500 hover:bg-green-600"
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Processing...' : 'Place Order'}
+                  {isLoading ? "Processing..." : "Place Order"}
                 </Button>
               </form>
             </CardContent>
