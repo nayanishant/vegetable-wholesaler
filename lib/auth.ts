@@ -4,7 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
 import dbConnect from "./dbConnect";
-import { env } from "@/lib/env"; // path to your env.ts
+import { env } from "@/lib/env";
 
 export const authOptions: NextAuthOptions = {
   debug: true,
@@ -19,83 +19,63 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      authorize: async (credentials) => {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Missing email or password.");
         }
-
-        try {
-          await dbConnect();
-          const user = await User.findOne({ email: credentials.email });
-
-          if (!user) {
-            throw new Error("No user found.");
-          }
-
-          const isValid = await bcrypt.compare(credentials.password, user.password);
-
-          if (!isValid) {
-            console.log("Invalid password");
-            throw new Error("Invalid password.");
-          }
-
-          return {
-            id: user._id.toString(),
-            email: user.email,
-            name: user.name,
-            role: user.role,
-          };
-        } catch (error) {
-          console.log("Error", error);
-          throw new Error("Something went wrong.");
+      
+        await dbConnect();
+      
+        const user = await User.findOne({ email: credentials.email });
+        if (!user || !user.password) {
+          throw new Error("No user found or password not set.");
         }
-      },
+      
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isValid) {
+          throw new Error("Invalid email or password.");
+        }
+      
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        };
+      }
+      
     }),
   ],
+
   callbacks: {
-    async jwt({ token, user, account, profile }) {
+    async jwt({ token, user }) {
       await dbConnect();
-      // console.log("Profile: ", profile);
-      // console.log("Token: ", token);
-      if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
-        token.role = user.role;
-      }
-  
-      if (account?.provider === "google") {
-        let existingUser = await User.findOne({ email: token.email });
-  
-        if (!existingUser) {
-          existingUser = await User.create({
-            email: token.email,
-            name: profile?.name,
-            image: token.picture,
-            provider: "google",
-            role: "user",
-          });
-        }
-  
-        token.id = existingUser._id.toString();
-        token.name = existingUser.name;
-        token.role = existingUser.role;
+
+      const dbUser = await User.findOne({ email: token.email });
+
+      // Create user if not exist (for Google)
+      if (!dbUser && token.email) {
+        const newUser = await User.create({
+          email: token.email,
+          name: token.name,
+          provider: "google",
+          role: "user",
+        });
+
+        token.id = newUser._id.toString();
+        token.role = newUser.role;
+        token.name = newUser.name;
+      } else if (dbUser) {
+        token.id = dbUser._id.toString();
+        token.role = dbUser.role;
+        token.name = dbUser.name;
       }
 
-      if (!user && token?.email && !token.role) {
-        const dbUser = await User.findOne({ email: token.email });
-        if (dbUser) {
-          token.id = dbUser._id.toString();
-          token.name = dbUser.name;
-          token.role = dbUser.role;
-        }
-      }
-  
       return token;
     },
-  
+
     async session({ session, token }) {
-      if (session?.user) {
+      if (session.user) {
         session.user.id = token.id as string;
         session.user.name = token.name;
         session.user.role = token.role;
@@ -103,12 +83,15 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
+
   pages: {
     signIn: "/login",
   },
+
   session: {
     strategy: "jwt",
-    maxAge: 1 * 24 * 60 * 60,
+    maxAge: 24 * 60 * 60,
   },
+
   secret: env.NEXTAUTH_SECRET,
 };
