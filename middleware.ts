@@ -6,7 +6,7 @@ export async function middleware(request: NextRequest) {
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
   });
-  console.log("Middleware token:", token);
+  // console.log("Middleware token:", token);
 
   const { pathname } = request.nextUrl;
 
@@ -42,6 +42,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/checkout", "/admin/:path*", "/admin-dashboard", "/admin/settings"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
 
