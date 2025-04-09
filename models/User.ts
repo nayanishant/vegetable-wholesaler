@@ -15,7 +15,7 @@ export interface IUser {
     state?: string;
     postalCode?: number;
     country?: string;
-  };
+  }[];
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -53,13 +53,15 @@ const userSchema = new Schema<IUser>(
       enum: ["credentials", "google"],
       default: "credentials",
     },
-    address: {
-      street: String,
-      city: String,
-      state: String,
-      postalCode: Number,
-      country: { type: String, default: "IN" },
-    },
+    address: [
+      {
+        street: String,
+        city: String,
+        state: String,
+        postalCode: Number,
+        country: { type: String, default: "IN" },
+      }
+    ],    
   },
   {
     timestamps: true,

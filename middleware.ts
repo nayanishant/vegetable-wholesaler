@@ -8,7 +8,6 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Allow public access to auth and login/register
   if (
     pathname.startsWith("/api/auth") ||
     pathname === "/login" ||
@@ -20,19 +19,15 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Not authenticated
   if (!token && pathname === "/checkout") {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Role-based protection
   if (token?.role === "admin") {
-    // Admin has access to everything
     return NextResponse.next();
   }
 
   if (token?.role === "user") {
-    // Block access to admin-only routes
     const adminOnlyRoutes = ["/admin", "/admin-dashboard", "/admin/settings"];
     const isAdminOnly = adminOnlyRoutes.some((route) => pathname.startsWith(route));
 
@@ -43,7 +38,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // If role is not valid
   return NextResponse.redirect(new URL("/login", request.url));
 }
 
