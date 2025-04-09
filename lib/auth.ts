@@ -49,6 +49,8 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     async jwt({ token, user }) {
+      // console.log("JWT Callback - user:", user);
+      // console.log("JWT Callback - token BEFORE:", token);
       await dbConnect();
 
       const dbUser = await User.findOne({ email: token.email });
@@ -57,7 +59,7 @@ export const authOptions: NextAuthOptions = {
       if (!dbUser && token.email) {
         const newUser = await User.create({
           email: token.email,
-          name: token.name,
+          name: user.name || token.name || token.email?.split("@")[0],
           provider: "google",
           role: "user",
         });
@@ -68,7 +70,8 @@ export const authOptions: NextAuthOptions = {
       } else if (dbUser) {
         token.id = dbUser._id.toString();
         token.role = dbUser.role;
-        token.name = dbUser.name;
+        token.name = dbUser.name || user?.name || token.name || token.email?.split("@")[0];
+
       }
 
       return token;

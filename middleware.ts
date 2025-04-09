@@ -3,18 +3,13 @@ import { getToken } from "next-auth/jwt";
 
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
-
-  // console.log("Role: ", token?.role);
+  // console.log("Middleware token:", token);
 
   const { pathname } = request.nextUrl;
 
   if (
     pathname.startsWith("/api/auth") ||
-    pathname === "/login" ||
-    pathname === "/register" ||
-    pathname === "/products" ||
-    pathname === "/cart" ||
-    pathname === "/"
+    ["/login", "/register", "/products", "/cart", "/"].includes(pathname)
   ) {
     return NextResponse.next();
   }
