@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/context/CartContext";
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 const products = [
   {
@@ -45,11 +46,22 @@ export default function Products() {
   const [searchTerm, setSearchTerm] = useState("");
   const [loadingProductId, setLoadingProductId] = useState<number | null>(null);
 
+  const { status } = useSession();
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-green-600 mb-2" />
+        <p className="text-sm text-gray-500">Loading your session...</p>
+      </div>
+    );
+  }
+
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddToCart = (product: typeof products[0]) => {
+  const handleAddToCart = (product: (typeof products)[0]) => {
     setLoadingProductId(product.id);
     setTimeout(() => {
       addToCart({ ...product, quantity: 1 });

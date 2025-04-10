@@ -6,14 +6,17 @@ export async function middleware(request: NextRequest) {
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
   });
-  // console.log("Middleware token:", token);
 
   const { pathname } = request.nextUrl;
 
-  if (
-    pathname.startsWith("/api/auth") ||
-    ["/login", "/register", "/products", "/cart", "/"].includes(pathname)
-  ) {
+  // console.log("🔐 [Middleware] Token:", token);
+  // console.log("📍 Pathname:", pathname);
+
+  const publicRoutes = ["/login", "/register", "/products", "/cart", "/"];
+  const isPublic =
+    pathname.startsWith("/api/auth") || publicRoutes.includes(pathname);
+
+  if (isPublic) {
     return NextResponse.next();
   }
 
@@ -43,5 +46,5 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  runtime: "experimental-edge",
 };
-

@@ -15,7 +15,7 @@ export default function Checkout() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  console.log("Session: ", session?.user);
+  // console.log("Session: ", session?.user);
 
   useEffect(() => {
     if (status === "unauthenticated") {

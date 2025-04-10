@@ -1,16 +1,42 @@
 'use client';
 
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Minus, Plus, Trash2 } from 'lucide-react';
+import { Minus, Plus, Trash2, Loader2 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 export default function Cart() {
   const { items, updateQuantity } = useCart();
+  const { status } = useSession();
+  const router = useRouter();
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const total = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  // 🔐 Redirect unauthenticated users
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login');
+    }
+  }, [status, router]);
+
+  // 🔄 Show loader while session is loading
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-green-600" />
+        <span className="ml-2 text-sm text-gray-600">Checking session...</span>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -25,10 +51,17 @@ export default function Cart() {
     );
   }
 
+  const handleCheckout = () => {
+    setCheckoutLoading(true);
+    setTimeout(() => {
+      router.push('/checkout');
+    }, 700);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => (
@@ -94,11 +127,22 @@ export default function Cart() {
                   </div>
                 </div>
               </div>
-              <Link href="/checkout" className="block mt-4">
-                <Button className="w-full bg-green-500 hover:bg-green-600">
-                  Proceed to Checkout
+              <div className="block mt-4">
+                <Button
+                  className="w-full bg-green-500 hover:bg-green-600"
+                  onClick={handleCheckout}
+                  disabled={checkoutLoading}
+                >
+                  {checkoutLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Redirecting...
+                    </div>
+                  ) : (
+                    'Proceed to Checkout'
+                  )}
                 </Button>
-              </Link>
+              </div>
             </CardContent>
           </Card>
         </div>
