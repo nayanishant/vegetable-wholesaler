@@ -1,12 +1,12 @@
 import mongoose, { Schema } from "mongoose";
-// import bcrypt from "bcryptjs";
 
 export interface IUser {
   email: string;
   name: string;
+  image?: string;
   role?: "user" | "admin";
   _id?: mongoose.Types.ObjectId;
-  provider?: "credentials" | "google";
+  provider?: "google";
   address?: {
     street?: string;
     city?: string;
@@ -32,6 +32,9 @@ const userSchema = new Schema<IUser>(
       required: true,
       trim: true,
     },
+    image: {
+      type: String,
+    },
     role: {
       type: String,
       enum: ["user", "admin"],
@@ -39,8 +42,8 @@ const userSchema = new Schema<IUser>(
     },
     provider: {
       type: String,
-      enum: ["credentials", "google"],
-      default: "credentials",
+      enum: ["google"],
+      default: "google",
     },
     address: [
       {
@@ -49,20 +52,13 @@ const userSchema = new Schema<IUser>(
         state: String,
         postalCode: Number,
         country: { type: String, default: "IN" },
-      }
-    ],    
+      },
+    ],
   },
   {
     timestamps: true,
   }
 );
-
-// userSchema.pre("save", async function (next) {
-//   if (this.isModified("password")) {
-//     this.password = await bcrypt.hash(this.password, 10);
-//   }
-//   next();
-// });
 
 const User = mongoose.models.User || mongoose.model<IUser>("User", userSchema);
 

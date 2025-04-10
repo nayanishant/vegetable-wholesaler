@@ -5,8 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Loader2, LogIn } from "lucide-react";
+import { Loader2, Leaf } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 
 import {
@@ -16,41 +15,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Leaf } from "lucide-react";
 
 export default function Login() {
-  const [credential, setCredential] = useState({ email: "", password: "" });
-  const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const router = useRouter();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCredential({ ...credential, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const result = await signIn("credentials", {
-        redirect: false,
-        ...credential,
-      });
-
-      if (result?.error) {
-        toast.error(result.error || "Invalid credentials");
-        return;
-      }
-
-      toast.success("Login successful! Redirecting...");
-      router.push("/products");
-    } catch (error: any) {
-      toast.error(error.message || "Something went wrong. Try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
@@ -72,25 +40,23 @@ export default function Login() {
           </div>
           <CardTitle className="text-2xl">Welcome back</CardTitle>
           <CardDescription>
-            Enter your email to sign in to your account
+            Sign in with your Google account to continue
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mt-6 text-center">
-            <Button
-              variant="outline"
-              className="mt-4 w-full flex items-center justify-center gap-2"
-              onClick={handleGoogleSignIn}
-              disabled={googleLoading}
-            >
-              {googleLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <FcGoogle className="h-5 w-5" />
-              )}
-              {googleLoading ? "Signing in..." : "Continue with Google"}
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            className="mt-4 w-full flex items-center justify-center gap-2"
+            onClick={handleGoogleSignIn}
+            disabled={googleLoading}
+          >
+            {googleLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <FcGoogle className="h-5 w-5" />
+            )}
+            {googleLoading ? "Signing in..." : "Continue with Google"}
+          </Button>
         </CardContent>
       </Card>
     </div>
