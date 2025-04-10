@@ -76,46 +76,7 @@ export default function Login() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="m@example.com"
-                value={credential.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                value={credential.password}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <Button
-              type="submit"
-              className="w-full bg-green-500 hover:bg-green-600"
-              disabled={loading}
-            >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <LogIn className="h-4 w-4 mr-2" />
-              )}
-              {loading ? "Signing in..." : "Sign in"}
-            </Button>
-          </form>
-
           <div className="mt-6 text-center">
-            <span className="text-sm text-gray-500">or</span>
             <Button
               variant="outline"
               className="mt-4 w-full flex items-center justify-center gap-2"

@@ -3,11 +3,9 @@ import bcrypt from "bcryptjs";
 
 export interface IUser {
   email: string;
-  password: string;
   name: string;
   role?: "user" | "admin";
   _id?: mongoose.Types.ObjectId;
-  phone: number;
   provider?: "credentials" | "google";
   address?: {
     street?: string;
@@ -29,19 +27,10 @@ const userSchema = new Schema<IUser>(
       lowercase: true,
       trim: true,
     },
-    password: {
-      type: String,
-      required: false,
-    },
     name: {
       type: String,
       required: true,
       trim: true,
-    },
-    phone: {
-      type: Number,
-      required: false,
-      unique: true,
     },
     role: {
       type: String,
