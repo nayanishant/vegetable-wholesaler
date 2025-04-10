@@ -1,12 +1,13 @@
 "use client";
 
-import { ShoppingCart, Menu, X, Leaf } from "lucide-react";
+import { ShoppingCart, Menu, X, Leaf, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import Image from "next/image";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +16,10 @@ export default function Navbar() {
   const cartCount = getCartCount();
   const { data: session } = useSession();
 
-  const navigation = [{ name: "Products", href: "/products" }];
+  const navigation = [
+    { name: "Products", href: "/products" },
+    { name: "Cart", href: "/cart" },
+  ];
 
   return (
     <nav className="bg-white shadow-sm">
@@ -44,7 +48,9 @@ export default function Navbar() {
                 {item.name}
               </Link>
             ))}
-            <Link href="/cart">
+
+            {/* Cart for Desktop only
+            <Link href="/cart" className="hidden sm:hidden">
               <Button variant="outline" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
                 {cartCount > 0 && (
@@ -53,25 +59,61 @@ export default function Navbar() {
                   </span>
                 )}
               </Button>
-            </Link>
-            {!session ? (
-              <Link href="/login">
-                <Button className="bg-green-500 hover:bg-green-600">Login</Button>
-              </Link>
-            ) : (
-              <Button
-                onClick={() => signOut()}
-                className="bg-red-500 hover:bg-red-600"
-              >
-                Logout
-              </Button>
-            )}
+            </Link> */}
+
+{!session ? (
+  <Link href="/login">
+    <Button className="bg-green-500 hover:bg-green-600">Login</Button>
+  </Link>
+) : (
+  <div className="relative group">
+    <Button variant="ghost" size="icon" className="relative">
+      <Settings className="h-5 w-5 text-gray-700" />
+    </Button>
+
+    <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg border rounded-md opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity z-50">
+      <div className="p-4 flex items-center gap-4">
+        {session.user?.image && (
+          <Image
+            src={session.user.image}
+            alt="Profile"
+            width={100}
+            height={100}
+            className="w-10 h-10 rounded-full object-cover"
+          />
+        )}
+        <div>
+          <p className="text-sm font-medium">{session.user?.name}</p>
+          <p className="text-xs text-gray-500">{session.user?.email}</p>
+        </div>
+      </div>
+      <div className="border-t" />
+      <div className="p-2">
+        <Button
+          onClick={() => signOut()}
+          className="w-full bg-red-500 hover:bg-red-600 text-white"
+        >
+          Sign out
+        </Button>
+      </div>
+    </div>
+  </div>
+)}
+
           </div>
 
           {/* Mobile Hamburger */}
           <div className="sm:hidden">
-            <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              {isOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </Button>
           </div>
         </div>
@@ -95,9 +137,17 @@ export default function Navbar() {
             </Link>
           ))}
 
-          {/* Cart Icon for mobile */}
-          <Link href="/cart" onClick={() => setIsOpen(false)}>
-            <Button variant="outline" size="icon" className="relative w-full justify-start">
+          {/* Cart Icon for Mobile Only */}
+          <Link
+            href="/cart"
+            className="hidden sm:hidden"
+            onClick={() => setIsOpen(false)}
+          >
+            <Button
+              variant="outline"
+              size="icon"
+              className="relative w-full justify-start sm:hidden"
+            >
               <ShoppingCart className="h-5 w-5" />
               <span className="ml-2">Cart</span>
               {cartCount > 0 && (
@@ -108,7 +158,7 @@ export default function Navbar() {
             </Button>
           </Link>
 
-          {/* Auth Button */}
+          {/* Auth Button for Mobile */}
           {!session ? (
             <Link href="/login" onClick={() => setIsOpen(false)}>
               <Button className="w-full bg-green-500 hover:bg-green-600 mt-2">

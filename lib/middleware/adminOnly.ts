@@ -1,13 +1,16 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth/next";
+import { getServerSession } from "next-auth";
+import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 
-export async function adminOnly(req: NextApiRequest, res: NextApiResponse, next: () => void) {
-  const session = await getServerSession(req, res, authOptions);
+export async function adminOnly(
+  req: NextRequest,
+  callback: (session: any) => Promise<NextResponse>
+): Promise<NextResponse> {
+  const session = await getServerSession(authOptions);
 
   if (!session || session.user.role !== "admin") {
-    return res.status(403).json({ message: "Access Denied" });
+    return NextResponse.json({ message: "Forbidden: Admins only" }, { status: 403 });
   }
 
-  return next();
+  return callback(session);
 }

@@ -78,10 +78,11 @@ export default function Cart() {
                   <h3 className="font-semibold">{item.name}</h3>
                   <p className="text-gray-600">${item.price}</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 max-w-full">
                   <Button
                     variant="outline"
                     size="icon"
+                    className="w-6 h-6 sm:w-8 sm:h-8"
                     onClick={() => updateQuantity(item.id, -1)}
                   >
                     <Minus className="h-4 w-4" />
@@ -90,6 +91,7 @@ export default function Cart() {
                   <Button
                     variant="outline"
                     size="icon"
+                    className="w-6 h-6 sm:w-8 sm:h-8"
                     onClick={() => updateQuantity(item.id, 1)}
                   >
                     <Plus className="h-4 w-4" />
@@ -97,6 +99,7 @@ export default function Cart() {
                   <Button
                     variant="destructive"
                     size="icon"
+                    className="w-6 h-6 sm:w-8 sm:h-8"
                     onClick={() => updateQuantity(item.id, -item.quantity)}
                   >
                     <Trash2 className="h-4 w-4" />
