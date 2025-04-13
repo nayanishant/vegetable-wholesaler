@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingCart, Menu, X, Leaf, Settings } from "lucide-react";
+import { ShoppingCart, Menu, X, Leaf, Settings, Warehouse } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -49,8 +49,8 @@ export default function Navbar() {
               </Link>
             ))}
 
-            {/* Cart for Desktop only
-            <Link href="/cart" className="hidden sm:hidden">
+            {/* Cart for Desktop only */}
+            {/* <Link href="/inventory" className="hidden sm:hidden">
               <Button variant="outline" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
                 {cartCount > 0 && (
@@ -61,45 +61,63 @@ export default function Navbar() {
               </Button>
             </Link> */}
 
-{!session ? (
-  <Link href="/login">
-    <Button className="bg-green-500 hover:bg-green-600">Login</Button>
-  </Link>
-) : (
-  <div className="relative group">
-    <Button variant="ghost" size="icon" className="relative">
-      <Settings className="h-5 w-5 text-gray-700" />
-    </Button>
+            {session?.user.role === "admin" ? (
+              <Link
+                href="/inventory"
+                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  pathname === "/inventory"
+                    ? "bg-green-500 text-white"
+                    : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                }`}
+              >
+                <Warehouse />
+              </Link>
+            ) : null}
 
-    <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg border rounded-md opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity z-50">
-      <div className="p-4 flex items-center gap-4">
-        {session.user?.image && (
-          <Image
-            src={session.user.image}
-            alt="Profile"
-            width={100}
-            height={100}
-            className="w-10 h-10 rounded-full object-cover"
-          />
-        )}
-        <div>
-          <p className="text-sm font-medium">{session.user?.name}</p>
-          <p className="text-xs text-gray-500">{session.user?.email}</p>
-        </div>
-      </div>
-      <div className="border-t" />
-      <div className="p-2">
-        <Button
-          onClick={() => signOut()}
-          className="w-full bg-red-500 hover:bg-red-600 text-white"
-        >
-          Sign out
-        </Button>
-      </div>
-    </div>
-  </div>
-)}
+            {!session ? (
+              <Link href="/login">
+                <Button className="bg-green-500 hover:bg-green-600">
+                  Login
+                </Button>
+              </Link>
+            ) : (
+              <div className="relative group">
+                <Button variant="ghost" size="icon" className="relative">
+                  <Settings className="h-5 w-5 text-gray-700" />
+                </Button>
 
+                <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg border rounded-md opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity z-50">
+                  <div className="p-4 flex items-center gap-4">
+                    {session.user?.image && (
+                      <Image
+                        src={session.user.image}
+                        alt="Profile"
+                        width={100}
+                        height={100}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    )}
+                    <div>
+                      <p className="text-sm font-medium">
+                        {session.user?.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {session.user?.email}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="border-t" />
+                  <div className="p-2">
+                    <Button
+                      onClick={() => signOut()}
+                      className="w-full bg-red-500 hover:bg-red-600 text-white"
+                    >
+                      Sign out
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Mobile Hamburger */}

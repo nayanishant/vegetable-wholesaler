@@ -25,7 +25,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (token?.role === "user") {
-    const adminOnlyRoutes = ["/admin", "/admin-dashboard", "/admin/settings"];
+    const adminOnlyRoutes = ["/inventory"];
     const isAdminOnly = adminOnlyRoutes.some((route) =>
       pathname.startsWith(route)
     );
@@ -41,5 +41,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api/inventory|api/auth|_next|favicon.ico).*)"],
 };
+

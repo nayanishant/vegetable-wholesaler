@@ -3,17 +3,17 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
 interface CartItem {
-  id: number;
+  id: string;
   name: string;
   price: number;
   quantity: number;
-  image: string;
+  image?: string;
 }
 
 interface CartContextType {
   items: CartItem[];
   addToCart: (product: CartItem) => void;
-  updateQuantity: (id: number, change: number) => void;
+  updateQuantity: (id: string, change: number) => void;
   getCartCount: () => number;
 }
 
@@ -38,7 +38,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const updateQuantity = (id: number, change: number) => {
+  const updateQuantity = (id: string, change: number) => {
     setItems(currentItems =>
       currentItems
         .map(item =>

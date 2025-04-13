@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -9,68 +10,63 @@ import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 
-const products = [
-  {
-    id: 1,
-    name: "Fresh Tomatoes",
-    price: 2.99,
-    unit: "kg",
-    image: "https://images.unsplash.com/photo-1546470427-1ec6b777bb5e",
-  },
-  {
-    id: 2,
-    name: "Organic Carrots",
-    price: 1.99,
-    unit: "kg",
-    image: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37",
-  },
-  {
-    id: 3,
-    name: "Green Lettuce",
-    price: 1.49,
-    unit: "piece",
-    image: "https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1",
-  },
-  {
-    id: 4,
-    name: "Red Lettuce",
-    price: 1.49,
-    unit: "piece",
-    image: "https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1",
-  },
-];
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  unit: string;
+  image?: string;
+}
 
 export default function Products() {
   const { toast } = useToast();
   const { addToCart } = useCart();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [loadingProductId, setLoadingProductId] = useState<number | null>(null);
-
   const { status } = useSession();
 
-  if (status === "loading") {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loadingProductId, setLoadingProductId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { data } = await axios.get("/api/inventory");
+        setProducts(data);
+      } catch (err) {
+        toast({ title: "Failed to load products" });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [toast]);
+
+  if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-green-600 mb-2" />
-        <p className="text-sm text-gray-500">Loading your session...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-green-600" />
       </div>
     );
   }
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = Array.isArray(products)
+    ? products.filter((product) =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
 
-  const handleAddToCart = (product: (typeof products)[0]) => {
-    setLoadingProductId(product.id);
+  const handleAddToCart = (product: Product) => {
+    setLoadingProductId(product._id);
     setTimeout(() => {
-      addToCart({ ...product, quantity: 1 });
+      addToCart({ ...product, id: product._id, quantity: 1 });
       toast({
         title: "Added to cart",
         description: `${product.name} has been added to your cart.`,
       });
       setLoadingProductId(null);
-    }, 800); // simulate network delay
+    }, 800);
   };
 
   return (
@@ -88,10 +84,10 @@ export default function Products() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProducts.map((product) => (
-          <Card key={product.id} className="overflow-hidden">
+          <Card key={product._id} className="overflow-hidden">
             <div className="aspect-square relative">
               <Image
-                src={product.image}
+                src={product.image || "/default-image.jpg"}
                 alt={product.name}
                 width={300}
                 height={300}
@@ -101,16 +97,16 @@ export default function Products() {
             <CardContent className="p-4">
               <h3 className="text-lg font-semibold">{product.name}</h3>
               <p className="text-gray-600">
-                ${product.price} per {product.unit}
+                ₹{product.price} per {product.unit}
               </p>
             </CardContent>
             <CardFooter className="p-4 pt-0">
               <Button
                 className="w-full bg-green-500 hover:bg-green-600"
                 onClick={() => handleAddToCart(product)}
-                disabled={loadingProductId === product.id}
+                disabled={loadingProductId === product._id}
               >
-                {loadingProductId === product.id ? (
+                {loadingProductId === product._id ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
                   "Add to Cart"
@@ -119,6 +115,11 @@ export default function Products() {
             </CardFooter>
           </Card>
         ))}
+        {!filteredProducts.length && !loading && (
+          <p className="text-gray-500 col-span-full text-center">
+            No products available right now.
+          </p>
+        )}
       </div>
     </div>
   );
