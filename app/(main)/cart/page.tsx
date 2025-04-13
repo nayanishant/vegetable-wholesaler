@@ -67,13 +67,13 @@ export default function Cart() {
           {items.map((item) => (
             <Card key={item.id}>
               <CardContent className="p-4 flex items-center gap-4">
-                <Image
-                  src={item.image || "/default-image.jpg"}
+                {/* <Image
+                  src={item.image}
                   alt={item.name}
                   className="w-24 h-24 object-cover rounded"
                   width={300}
                   height={300}
-                />
+                /> */}
                 <div className="flex-1">
                   <h3 className="font-semibold">{item.name}</h3>
                   <p className="text-gray-600">${item.price}</p>
