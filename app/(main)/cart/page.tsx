@@ -68,7 +68,7 @@ export default function Cart() {
             <Card key={item.id}>
               <CardContent className="p-4 flex items-center gap-4">
                 <Image
-                  src={item.image}
+                  src={item.image || "/default-image.jpg"}
                   alt={item.name}
                   className="w-24 h-24 object-cover rounded"
                   width={300}
