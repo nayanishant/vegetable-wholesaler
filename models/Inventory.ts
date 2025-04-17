@@ -3,7 +3,13 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IInventory extends Document {
   name: string;
   description?: string;
-  image?: string;
+  image?: {
+    url: string;
+    publicId?: string;
+    width?: number;
+    height?: number;
+    format?: string;
+  };
   price: number;
   unit: string;
   stock: number;
@@ -26,7 +32,16 @@ const inventorySchema = new Schema<IInventory>(
       trim: true,
     },
     image: {
-      type: String,
+      type: new Schema(
+        {
+          url: { type: String, required: true },
+          publicId: { type: String },
+          width: { type: Number },
+          height: { type: Number },
+          format: { type: String },
+        },
+        { _id: false }
+      ),
     },
     price: {
       type: Number,

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -15,7 +15,12 @@ interface Product {
   name: string;
   price: number;
   unit: string;
-  image?: string;
+  image?: {
+    url: string;
+    size?: number;
+    name?: string;
+    type?: string;
+  };
 }
 
 export default function Products() {
@@ -28,10 +33,13 @@ export default function Products() {
   const [loadingProductId, setLoadingProductId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  console.log("Products: ", products);
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const { data } = await axios.get("/api/inventory");
+        console.log("Data: ", data);
         setProducts(data);
       } catch (err) {
         toast({ title: "Failed to load products" });
@@ -87,7 +95,7 @@ export default function Products() {
           <Card key={product._id} className="overflow-hidden">
             <div className="aspect-square relative">
               <Image
-                src={product.image || "/default-image.jpg"}
+                src={product.image?.url || "/default-image.jpg"}
                 alt={product.name}
                 width={300}
                 height={300}

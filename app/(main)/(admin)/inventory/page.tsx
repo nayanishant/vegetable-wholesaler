@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
+import ImageUploader from "@/components/ImageUploader";
 
 interface InventoryItem {
   _id: string;
@@ -27,7 +28,7 @@ export default function Inventory() {
     stock: "",
     isAvailable: "true",
   });
-
+  const [imageFile, setImageFile] = useState<any>(null);
   const [editId, setEditId] = useState<string | null>(null);
 
   const fetchInventory = async () => {
@@ -65,8 +66,9 @@ export default function Inventory() {
         unit: form.unit,
         stock: parseInt(form.stock),
         isAvailable: form.isAvailable === "true",
+        image: imageFile,
       };
-
+  
       if (editId) {
         await axios.patch("/api/admin/inventory", {
           id: editId,
@@ -77,13 +79,13 @@ export default function Inventory() {
         await axios.post("/api/admin/inventory", payload);
         toast.success("Product added");
       }
-
+  
       resetForm();
       fetchInventory();
     } catch (err) {
       toast.error(editId ? "Error updating product" : "Error adding product");
     }
-  };
+  };  
 
   const handleEdit = (item: InventoryItem) => {
     setEditId(item._id);
@@ -137,6 +139,7 @@ export default function Inventory() {
             value={form.stock}
             onChange={(e) => setForm({ ...form, stock: e.target.value })}
           />
+          <ImageUploader onUploadComplete={(file) => setImageFile(file)} />
           <select
             className="border rounded px-2 py-1"
             value={form.isAvailable}
