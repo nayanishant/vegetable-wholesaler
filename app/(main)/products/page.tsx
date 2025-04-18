@@ -36,7 +36,7 @@ export default function Products() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await axios.get("/api/inventory");
+        const { data } = await axios.get("/api/products");
         console.log("Fetched from API:", data);
         setProducts(data);
       } catch (err) {
