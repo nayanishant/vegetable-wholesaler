@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -32,8 +32,6 @@ export default function Products() {
   const [searchTerm, setSearchTerm] = useState("");
   const [loadingProductId, setLoadingProductId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
-  console.log("Products: ", products);
 
   useEffect(() => {
     const fetchProducts = async () => {
