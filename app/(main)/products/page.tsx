@@ -37,6 +37,7 @@ export default function Products() {
     const fetchProducts = async () => {
       try {
         const { data } = await axios.get("/api/inventory");
+        console.log("Fetched from API:", data);
         setProducts(data);
       } catch (err) {
         toast({ title: "Failed to load products" });

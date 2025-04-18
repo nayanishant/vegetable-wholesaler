@@ -5,9 +5,7 @@ import Inventory from "@/models/Inventory";
 export async function GET(req: NextRequest) {
   try {
     await dbConnect();
-    const items = await Inventory.find().sort({
-      createdAt: -1,
-    });
+    const items = await Inventory.find();
     console.log("Products: ", items);
     return NextResponse.json(items);
   } catch (error) {
