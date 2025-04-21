@@ -15,8 +15,6 @@ export default function Checkout() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  // console.log("Session: ", session?.user);
-
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
@@ -114,7 +112,7 @@ export default function Checkout() {
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>$4.97</span>
+                  <span>₹4.97</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
@@ -123,7 +121,7 @@ export default function Checkout() {
                 <div className="border-t pt-4">
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>$4.97</span>
+                    <span>₹4.97</span>
                   </div>
                 </div>
               </div>

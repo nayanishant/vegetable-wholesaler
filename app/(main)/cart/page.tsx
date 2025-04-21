@@ -67,16 +67,16 @@ export default function Cart() {
           {items.map((item) => (
             <Card key={item.id}>
               <CardContent className="p-4 flex items-center gap-4">
-                {/* <Image
-                  src={item.image}
-                  alt={item.name}
-                  className="w-24 h-24 object-cover rounded"
-                  width={300}
-                  height={300}
-                /> */}
+                <Image
+                src={item.image?.url || "/default-image.jpg"}
+                alt={item.name}
+                width={100}
+                height={100}
+                className="object-cover w-50 h-50 rounded"
+                />
                 <div className="flex-1">
                   <h3 className="font-semibold">{item.name}</h3>
-                  <p className="text-gray-600">${item.price}</p>
+                  <p className="text-gray-600">₹{item.price}</p>
                 </div>
                 <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 max-w-full">
                   <Button
@@ -117,7 +117,7 @@ export default function Cart() {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>₹{total.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
@@ -126,7 +126,7 @@ export default function Cart() {
                 <div className="border-t pt-2 mt-2">
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>₹{total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>

@@ -90,7 +90,7 @@ export default function Navbar() {
                   <div className="p-4 flex items-center gap-4">
                     {session.user?.image && (
                       <Image
-                        src={session.user.image}
+                        src={session?.user.image}
                         alt="Profile"
                         width={100}
                         height={100}
