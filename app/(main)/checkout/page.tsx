@@ -8,12 +8,19 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/context/CartContext";
 
 export default function Checkout() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { items } = useCart();
+
+  const total = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -110,10 +117,14 @@ export default function Checkout() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span>₹4.97</span>
-                </div>
+                {items.map((item) => (
+                  <div key={item.id} className="flex justify-between text-sm">
+                    <span>
+                      {item.name} × {item.quantity}
+                    </span>
+                    <span>₹{(item.price * item.quantity).toFixed(2)}</span>
+                  </div>
+                ))}
                 <div className="flex justify-between">
                   <span>Shipping</span>
                   <span>Free</span>
@@ -121,7 +132,7 @@ export default function Checkout() {
                 <div className="border-t pt-4">
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>₹4.97</span>
+                    <span>₹{total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
