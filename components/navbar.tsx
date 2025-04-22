@@ -1,6 +1,12 @@
 "use client";
 
-import { ShoppingCart, Leaf, Settings, Warehouse } from "lucide-react";
+import {
+  ShoppingCart,
+  Leaf,
+  Settings,
+  Warehouse,
+  Boxes,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
@@ -16,7 +22,8 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="bg-white shadow-sm">
+      {/* Top Navbar for Desktop */}
+      <nav className="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             {/* Logo */}
@@ -29,6 +36,7 @@ export default function Navbar() {
 
             {/* Desktop Nav */}
             <div className="hidden sm:flex sm:items-center sm:space-x-4">
+              {/* Products */}
               <Link
                 href="/products"
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
@@ -40,7 +48,7 @@ export default function Navbar() {
                 Products
               </Link>
 
-              {/* Cart with icon and badge */}
+              {/* Cart */}
               <Link
                 href="/cart"
                 className="relative px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 flex items-center"
@@ -53,7 +61,7 @@ export default function Navbar() {
                 )}
               </Link>
 
-              {/* Admin inventory link */}
+              {/* Admin Inventory */}
               {session?.user.role === "admin" && (
                 <Link
                   href="/inventory"
@@ -67,7 +75,7 @@ export default function Navbar() {
                 </Link>
               )}
 
-              {/* Auth section */}
+              {/* Profile / Auth */}
               {!session ? (
                 <Link href="/login">
                   <Button className="bg-green-500 hover:bg-green-600">
@@ -113,7 +121,7 @@ export default function Navbar() {
             href="/products"
             className="flex flex-col items-center text-sm text-gray-700"
           >
-            <Warehouse className="h-5 w-5" />
+            <Boxes className="h-5 w-5" />
             <span>Products</span>
           </Link>
 
@@ -130,15 +138,17 @@ export default function Navbar() {
             )}
           </Link>
 
-          {session ? (
-            <button
-              onClick={() => signOut()}
+          {session?.user.role === "admin" && (
+            <Link
+              href="/inventory"
               className="flex flex-col items-center text-sm text-gray-700"
             >
-              <Settings className="h-5 w-5" />
-              <span>Logout</span>
-            </button>
-          ) : (
+              <Warehouse className="h-5 w-5" />
+              <span>Admin</span>
+            </Link>
+          )}
+
+          {!session ? (
             <Link
               href="/login"
               className="flex flex-col items-center text-sm text-gray-700"
@@ -146,6 +156,14 @@ export default function Navbar() {
               <Settings className="h-5 w-5" />
               <span>Login</span>
             </Link>
+          ) : (
+            <button
+              onClick={() => signOut()}
+              className="flex flex-col items-center text-sm text-gray-700"
+            >
+              <Settings className="h-5 w-5" />
+              <span>Logout</span>
+            </button>
           )}
         </div>
       </div>

@@ -13,7 +13,7 @@ export default function MainLayout({
     <ThemeProvider attribute="class" defaultTheme="light">
       <CartProvider>
         <Navbar />
-        <main className="flex-1 h-full bg-background pb-20">
+        <main className="flex-1 h-full bg-background">
           <EdgeStoreProvider>{children}</EdgeStoreProvider>
         </main>
         <Toaster />
