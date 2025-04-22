@@ -1,19 +1,19 @@
 {
-  "name": "FreshWholesale",
-  "short_name": "FreshWholesale",
-  "description": "Your trusted partner for wholesale vegetables",
+  "name": "My App",
+  "short_name": "App",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#22c55e",
+  "theme_color": "#000000",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "/icon-192x192.png",
+      "src": "/public/icons/application.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "/public/icons/application.png",
       "sizes": "512x512",
       "type": "image/png"
     }

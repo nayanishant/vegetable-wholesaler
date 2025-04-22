@@ -4,6 +4,7 @@ export interface IUser {
   email: string;
   name: string;
   image?: string;
+  phone: string;
   role?: "user" | "admin";
   _id?: mongoose.Types.ObjectId;
   provider?: "google";
@@ -36,6 +37,7 @@ const userSchema = new Schema<IUser>(
     image: {
       type: String,
     },
+    phone: String,
     role: {
       type: String,
       enum: ["user", "admin"],
