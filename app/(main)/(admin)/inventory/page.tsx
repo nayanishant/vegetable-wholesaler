@@ -111,7 +111,7 @@ export default function Inventory() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4 pb-20">
+    <div className="max-w-4xl mx-auto py-20 px-4 lg:pt-20 lg:pb-10">
       <Card>
         <CardHeader>
           <CardTitle>{editId ? "Edit Product" : "Add New Product"}</CardTitle>
