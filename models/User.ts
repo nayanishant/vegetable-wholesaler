@@ -13,6 +13,7 @@ export interface IUser {
     state?: string;
     postalCode?: number;
     country?: string;
+    isDefault: boolean
   }[];
   createdAt?: Date;
   updatedAt?: Date;
@@ -52,6 +53,7 @@ const userSchema = new Schema<IUser>(
         state: String,
         postalCode: Number,
         country: { type: String, default: "IN" },
+        isDefault: { type: Boolean, default: false },
       },
     ],
   },
