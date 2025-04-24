@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  ShoppingCart,
-  Leaf,
-  Settings,
-  Warehouse,
-  Boxes,
-} from "lucide-react";
+import { ShoppingCart, Leaf, Settings, Warehouse, Boxes } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
@@ -85,20 +79,16 @@ export default function Navbar() {
               ) : (
                 <div className="flex items-center gap-3">
                   {session.user?.image && (
-                    <Image
-                      src={session.user.image}
-                      alt="Profile"
-                      width={32}
-                      height={32}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
+                    <Link href="/profile">
+                      <Image
+                        src={session.user.image}
+                        alt="Profile"
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    </Link>
                   )}
-                  <Button
-                    onClick={() => signOut()}
-                    className="bg-red-500 hover:bg-red-600 text-white"
-                  >
-                    Logout
-                  </Button>
                 </div>
               )}
             </div>
@@ -144,27 +134,24 @@ export default function Navbar() {
               className="flex flex-col items-center text-sm text-gray-700"
             >
               <Warehouse className="h-5 w-5" />
-              <span>Admin</span>
+              <span>Inventory</span>
             </Link>
           )}
 
-          {!session ? (
+          {session?.user.image ? (
             <Link
-              href="/login"
+              href="/profile"
               className="flex flex-col items-center text-sm text-gray-700"
             >
-              <Settings className="h-5 w-5" />
-              <span>Login</span>
+              <Image
+                src={session?.user.image}
+                alt="Profile"
+                width={32}
+                height={32}
+                className="w-8 h-8 rounded-full object-cover"
+              />
             </Link>
-          ) : (
-            <button
-              onClick={() => signOut()}
-              className="flex flex-col items-center text-sm text-gray-700"
-            >
-              <Settings className="h-5 w-5" />
-              <span>Logout</span>
-            </button>
-          )}
+          ) : ""}
         </div>
       </div>
     </>
