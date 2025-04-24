@@ -3,102 +3,125 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import axios from "axios";
+import { toast } from "sonner";
+
+interface Address {
+  _id?: string;
+  street?: string;
+  city?: string;
+  state?: string;
+  postalCode?: number;
+  country?: string;
+  isDefault?: boolean;
+}
 
 export default function Checkout() {
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [phone, setPhone] = useState<string>("");
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+
   const { data: session, status } = useSession();
   const router = useRouter();
   const { items } = useCart();
 
-  console.log(session);
-
-  const total = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    }
+    if (status === "unauthenticated") router.push("/login");
   }, [status, router]);
 
-  if (status === "loading") return <div>Loading...</div>;
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      try {
+        const { data } = await axios.get("/api/profile");
+        setAddresses(data.user.address || []);
+        setPhone(data.user.phone || "");
+        const defaultAddr = data.user.address?.find((a: Address) => a.isDefault);
+        if (defaultAddr?._id) setSelectedAddressId(defaultAddr._id);
+      } catch {
+        toast.error("Failed to load addresses");
+      }
+    };
+
+    if (status === "authenticated") fetchAddresses();
+  }, [status]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate order processing
+    if (!selectedAddressId) {
+      toast.error("Please select a shipping address");
+      setIsLoading(false);
+      return;
+    }
+
+    // Simulate checkout
     setTimeout(() => {
       setIsLoading(false);
-      toast({
-        title: "Order Placed!",
+      toast.success("Order Placed!", {
         description: "Your order has been successfully placed.",
       });
-    }, 2000);
+    }, 700);
   };
+
+  if (status === "loading") return <div>Loading...</div>;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
       <h1 className="text-3xl font-bold mb-8">Checkout</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Address Section */}
         <div>
           <Card>
             <CardHeader>
-              <CardTitle>Shipping Information</CardTitle>
+              <CardTitle>Select Shipping Address</CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">Name</Label>
-                    <Input
-                      id="firstName"
-                      required
-                      defaultValue={session?.user?.name}
-                    />
-                  </div>
-                </div>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {addresses.map((addr) => {
+                  const selected = addr._id === selectedAddressId;
+                  return (
+                    <div
+                      key={addr._id}
+                      className={`p-4 rounded border transition-all ${
+                        selected
+                          ? "border-green-600 bg-green-50"
+                          : "border-gray-300 hover:border-gray-400"
+                      }`}
+                    >
+                      <p className="font-medium">{addr.street}</p>
+                      <p>
+                        {addr.city}, {addr.state} - {addr.postalCode}
+                      </p>
+                      <p>{addr.country ?? "IN"}</p>
+                      <p>{phone}</p>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    required
-                    defaultValue={session?.user?.email}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="address">Address</Label>
-                  <Input id="address" required />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
-                    <Input id="city" required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="postalCode">Postal Code</Label>
-                    <Input id="postalCode" required />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" type="tel" required />
-                </div>
+                      <div className="flex items-center gap-2 mt-3">
+                        {addr.isDefault && (
+                          <span className="text-xs px-2 py-1 rounded bg-green-500 text-white">
+                            Default
+                          </span>
+                        )}
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={selected ? "default" : "outline"}
+                          onClick={() => setSelectedAddressId(addr._id!)}
+                          className={selected ? "bg-green-600 hover:bg-green-700" : ""}
+                        >
+                          {selected ? "Selected" : "Select"}
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
 
                 <Button
                   type="submit"
@@ -112,6 +135,7 @@ export default function Checkout() {
           </Card>
         </div>
 
+        {/* Order Summary */}
         <div>
           <Card>
             <CardHeader>

@@ -98,7 +98,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const user = await User.findOne({ email: session.user.email }).select(
-      "email name image phone address"
+      "phone address"
     );
 
     if (!user) {
@@ -108,7 +108,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ user });
   } catch (error: any) {
     console.error("❌ Error fetching profile:", error.message);
-    return NextResponse.json({ error: "Failed to fetch profile" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch profile" },
+      { status: 500 }
+    );
   }
 }
-
