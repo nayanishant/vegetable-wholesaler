@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
+import { Loader2 } from "lucide-react";
 
 interface Address {
   _id?: string;
@@ -31,14 +32,18 @@ export default function ProfilePage() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [newAddress, setNewAddress] = useState<Address>({});
   const { data: session } = useSession();
+  const [loading, setLoading] = useState(true);
 
   const fetchProfile = async () => {
+    setLoading(true);
     try {
       const { data } = await axios.get("/api/profile");
       setPhone(data.user.phone || "");
       setAddresses(data.user.address || []);
     } catch {
       toast.error("Failed to load profile");
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -83,6 +88,15 @@ export default function ProfilePage() {
       toast.error("Failed to update profile");
     }
   };
+
+  if (status === "loading" || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-green-600" />
+        <span className="ml-2 text-gray-500">Loading profile...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto py-20 lg:py-20 px-4 space-y-6">

@@ -17,6 +17,8 @@ export default function Checkout() {
   const router = useRouter();
   const { items } = useCart();
 
+  console.log(session);
+
   const total = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0

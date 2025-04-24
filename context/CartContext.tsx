@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   createContext,
@@ -6,7 +6,7 @@ import {
   useState,
   useEffect,
   ReactNode,
-} from 'react';
+} from "react";
 
 interface CartItem {
   id: string;
@@ -36,12 +36,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // ✅ Load from localStorage
   useEffect(() => {
-    const stored = localStorage.getItem('cart');
+    const stored = localStorage.getItem("cart");
     if (stored) {
       try {
         setItems(JSON.parse(stored));
       } catch (err) {
-        console.error('Failed to parse cart from localStorage', err);
+        console.error("Failed to parse cart from localStorage", err);
       }
     }
     setCartLoaded(true);
@@ -49,33 +49,33 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (cartLoaded) {
-      localStorage.setItem('cart', JSON.stringify(items));
+      localStorage.setItem("cart", JSON.stringify(items));
     }
   }, [items, cartLoaded]);
 
   const addToCart = (product: CartItem) => {
-    setItems(currentItems => {
-      const existingItem = currentItems.find(item => item.id === product.id);
+    setItems((currentItems) => {
+      const existingItem = currentItems.find((item) => item.id === product.id);
       if (existingItem) {
-        return currentItems.map(item =>
+        return currentItems.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: item.quantity + product.quantity }
             : item
         );
       }
-      return [...currentItems, { ...product, quantity: 1 }];
+      return [...currentItems, { ...product }];
     });
   };
 
   const updateQuantity = (id: string, change: number) => {
-    setItems(currentItems =>
+    setItems((currentItems) =>
       currentItems
-        .map(item =>
+        .map((item) =>
           item.id === id
             ? { ...item, quantity: Math.max(0, item.quantity + change) }
             : item
         )
-        .filter(item => item.quantity > 0)
+        .filter((item) => item.quantity > 0)
     );
   };
 
@@ -97,7 +97,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 export function useCart() {
   const context = useContext(CartContext);
   if (!context) {
-    throw new Error('useCart must be used within a CartProvider');
+    throw new Error("useCart must be used within a CartProvider");
   }
   return context;
 }

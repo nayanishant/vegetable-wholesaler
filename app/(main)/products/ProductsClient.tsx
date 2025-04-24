@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/context/CartContext";
 import Image from "next/image";
-import { Loader2 } from "lucide-react";
+import { Loader2, Minus, Plus } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 interface Product {
@@ -29,6 +29,32 @@ export default function ProductsClient({ products }: { products: Product[] }) {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [loadingProductId, setLoadingProductId] = useState<string | null>(null);
+  const [quantities, setQuantities] = useState<{ [productId: string]: number }>({});
+
+  const handleQuantityChange = (productId: string, delta: number) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [productId]: Math.max(1, (prev[productId] || 1) + delta),
+    }));
+  };
+
+  const handleAddToCart = (product: Product) => {
+    const quantity = quantities[product._id] || 1;
+    setLoadingProductId(product._id);
+
+    setTimeout(() => {
+      addToCart({ ...product, id: product._id, quantity });
+      toast({
+        title: "Added to cart",
+        description: `${product.name} (x${quantity}) added to your cart.`,
+      });
+      setLoadingProductId(null);
+    }, 600);
+  };
+
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (status === "loading") {
     return (
@@ -37,22 +63,6 @@ export default function ProductsClient({ products }: { products: Product[] }) {
       </div>
     );
   }
-
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleAddToCart = (product: Product) => {
-    setLoadingProductId(product._id);
-    setTimeout(() => {
-      addToCart({ ...product, id: product._id, quantity: 1 });
-      toast({
-        title: "Added to cart",
-        description: `${product.name} has been added to your cart.`,
-      });
-      setLoadingProductId(null);
-    }, 800);
-  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
@@ -85,7 +95,27 @@ export default function ProductsClient({ products }: { products: Product[] }) {
                 ₹{product.price} per {product.unit}
               </p>
             </CardContent>
-            <CardFooter className="p-4 pt-0">
+            <CardFooter className="p-4 pt-0 flex flex-col gap-2">
+              <div className="flex items-center justify-center gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleQuantityChange(product._id, -1)}
+                >
+                  <Minus className="w-4 h-4" />
+                </Button>
+                <span className="text-lg font-medium w-8 text-center">
+                  {quantities[product._id] || 1}
+                </span>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleQuantityChange(product._id, 1)}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+
               <Button
                 className="w-full bg-green-500 hover:bg-green-600"
                 onClick={() => handleAddToCart(product)}
