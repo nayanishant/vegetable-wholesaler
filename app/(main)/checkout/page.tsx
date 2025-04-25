@@ -19,24 +19,29 @@ interface Address {
   isDefault?: boolean;
 }
 
+interface ProductInfo {
+  _id: string;
+  name: string;
+  price: number;
+}
+
 export default function Checkout() {
   const [isLoading, setIsLoading] = useState(false);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [phone, setPhone] = useState<string>("");
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [productMap, setProductMap] = useState<Record<string, ProductInfo>>({});
 
   const { data: session, status } = useSession();
   const router = useRouter();
   const { items } = useCart();
-
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/login");
   }, [status, router]);
 
   useEffect(() => {
-    const fetchAddresses = async () => {
+    const fetchUser = async () => {
       try {
         const { data } = await axios.get("/api/profile");
         setAddresses(data.user.address || []);
@@ -48,7 +53,23 @@ export default function Checkout() {
       }
     };
 
-    if (status === "authenticated") fetchAddresses();
+    const fetchProducts = async () => {
+      try {
+        const { data } = await axios.get<ProductInfo[]>("/api/products");
+        const map = data.reduce((acc, item) => {
+          acc[item._id] = { _id: item._id, name: item.name, price: item.price };
+          return acc;
+        }, {} as Record<string, ProductInfo>);
+        setProductMap(map);
+      } catch {
+        toast.error("Failed to load product data");
+      }
+    };
+
+    if (status === "authenticated") {
+      fetchUser();
+      fetchProducts();
+    }
   }, [status]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,6 +92,11 @@ export default function Checkout() {
   };
 
   if (status === "loading") return <div>Loading...</div>;
+
+  const total = items.reduce((sum, item) => {
+    const product = productMap[item.id];
+    return sum + (product?.price || 0) * item.quantity;
+  }, 0);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
@@ -143,14 +169,17 @@ export default function Checkout() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {items.map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <span>
-                      {item.name} × {item.quantity}
-                    </span>
-                    <span>₹{(item.price * item.quantity).toFixed(2)}</span>
-                  </div>
-                ))}
+                {items.map((item) => {
+                  const product = productMap[item.id];
+                  return (
+                    <div key={item.id} className="flex justify-between text-sm">
+                      <span>
+                        {product?.name || "Unknown"} × {item.quantity}
+                      </span>
+                      <span>₹{(product?.price || 0) * item.quantity}</span>
+                    </div>
+                  );
+                })}
                 <div className="flex justify-between">
                   <span>Shipping</span>
                   <span>Free</span>

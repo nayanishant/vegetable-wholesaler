@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import Inventory, { IInventory } from "@/models/Inventory";
 
-type LeanInventory = Omit<IInventory, "_id" | "createdBy" | "createdAt" | "updatedAt"> & {
+type LeanInventory = Omit<
+  IInventory,
+  "_id" | "createdBy" | "createdAt" | "updatedAt"
+> & {
   _id: string;
   createdBy?: string;
   createdAt?: string;

@@ -9,36 +9,78 @@ import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
+
+interface InventoryItem {
+  _id: string;
+  name: string;
+  price: number;
+  image?: {
+    url: string;
+  };
+}
 
 export default function Cart() {
   const { items, updateQuantity } = useCart();
   const { status } = useSession();
   const router = useRouter();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [productData, setProductData] = useState<InventoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const total = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const fetchInventory = async () => {
+    try {
+      const { data } = await axios.get<InventoryItem[]>('/api/products');
+      setProductData(data);
+    } catch (error) {
+      console.error("Error loading product info:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // 🔐 Redirect unauthenticated users
+  useEffect(() => {
+    if (status === 'authenticated') fetchInventory();
+  }, [status]);
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login');
     }
   }, [status, router]);
 
-  // 🔄 Show loader while session is loading
-  if (status === 'loading') {
+  if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-green-600" />
-        <span className="ml-2 text-sm text-gray-600">Checking session...</span>
+        <span className="ml-2 text-sm text-gray-600">Loading cart...</span>
       </div>
     );
   }
 
-  if (items.length === 0) {
+  // Map local cart to full product info
+  const mergedItems = items.map((cartItem) => {
+    const fullItem = productData.find((p) => p._id === cartItem.id);
+    return {
+      ...cartItem,
+      name: fullItem?.name || 'Unknown Product',
+      price: fullItem?.price || 0,
+    };
+  });
+
+  const total = mergedItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  const handleCheckout = () => {
+    setCheckoutLoading(true);
+    setTimeout(() => {
+      router.push('/checkout');
+    }, 700);
+  };
+
+  if (mergedItems.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center pb-20">
         <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
@@ -51,28 +93,21 @@ export default function Cart() {
     );
   }
 
-  const handleCheckout = () => {
-    setCheckoutLoading(true);
-    setTimeout(() => {
-      router.push('/checkout');
-    }, 700);
-  };
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 pb-20">
       <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
-          {items.map((item) => (
+          {mergedItems.map((item) => (
             <Card key={item.id}>
               <CardContent className="p-4 flex items-center gap-4">
                 <Image
-                src={item.image?.url || "/default-image.jpg"}
-                alt={item.name}
-                width={100}
-                height={100}
-                className="object-cover w-50 h-50 rounded"
+                  src={item.image?.url || "/default-image.jpg"}
+                  alt={item.name}
+                  width={100}
+                  height={100}
+                  className="object-cover w-50 h-50 rounded"
                 />
                 <div className="flex-1">
                   <h3 className="font-semibold">{item.name}</h3>

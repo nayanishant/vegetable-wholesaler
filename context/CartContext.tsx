@@ -8,22 +8,20 @@ import {
   ReactNode,
 } from "react";
 
-interface CartItem {
+interface StoredCartItem {
   id: string;
-  name: string;
-  price: number;
   quantity: number;
-  image?: {
-    url: string;
-    size?: number;
-    name?: string;
-    type?: string;
-  };
+  image?: { url: string };
+}
+
+interface FullCartItem extends StoredCartItem {
+  name?: string;
+  price?: number;
 }
 
 interface CartContextType {
-  items: CartItem[];
-  addToCart: (product: CartItem) => void;
+  items: StoredCartItem[];
+  addToCart: (item: StoredCartItem) => void;
   updateQuantity: (id: string, change: number) => void;
   getCartCount: () => number;
 }
@@ -31,7 +29,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<StoredCartItem[]>([]);
   const [cartLoaded, setCartLoaded] = useState(false);
 
   // ✅ Load from localStorage
@@ -39,31 +37,47 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const stored = localStorage.getItem("cart");
     if (stored) {
       try {
-        setItems(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          setItems(parsed);
+        }
       } catch (err) {
-        console.error("Failed to parse cart from localStorage", err);
+        console.error("❌ Failed to parse cart from localStorage", err);
       }
     }
     setCartLoaded(true);
   }, []);
 
+  // ✅ Save only essential data to localStorage
   useEffect(() => {
     if (cartLoaded) {
       localStorage.setItem("cart", JSON.stringify(items));
     }
   }, [items, cartLoaded]);
 
-  const addToCart = (product: CartItem) => {
+  const addToCart = (product: {
+    id: string;
+    quantity: number;
+    image?: { url?: string };
+  }) => {
+    const itemToStore: StoredCartItem = {
+      id: product.id,
+      quantity: product.quantity,
+      image: product.image?.url ? { url: product.image.url } : undefined,
+    };
+
     setItems((currentItems) => {
-      const existingItem = currentItems.find((item) => item.id === product.id);
+      const existingItem = currentItems.find(
+        (item) => item.id === itemToStore.id
+      );
       if (existingItem) {
         return currentItems.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + product.quantity }
+          item.id === itemToStore.id
+            ? { ...item, quantity: item.quantity + itemToStore.quantity }
             : item
         );
       }
-      return [...currentItems, { ...product }];
+      return [...currentItems, itemToStore];
     });
   };
 
@@ -82,7 +96,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const getCartCount = () =>
     items.reduce((total, item) => total + item.quantity, 0);
 
-  // 🚫 Prevent rendering children until cart is loaded
   if (!cartLoaded) return null;
 
   return (
