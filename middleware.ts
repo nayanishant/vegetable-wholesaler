@@ -9,8 +9,9 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  const publicRoutes = ["/login", "/products", "/cart", "/"];
-  const isPublic = pathname.startsWith("/api/auth") || publicRoutes.includes(pathname);
+  const publicRoutes = ["/login", "/products", "/cart", "/", "/manifest.json"];
+  const isPublic =
+    pathname.startsWith("/api/auth") || publicRoutes.includes(pathname);
 
   if (isPublic) {
     return NextResponse.next();
@@ -43,4 +44,3 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/((?!api/inventory|api/auth|_next|favicon.ico).*)"],
 };
-

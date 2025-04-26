@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "FreshWholesale - Premium Vegetable Wholesaler",
   description: "Your trusted partner for wholesale vegetables",
-  manifest: "/manifest.json",
+  manifest: "http://localhost:3000/manifest.json",
 };
 
 export default function RootLayout({
@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="manifest" href="/manifest.json" />
+        {/* <link rel="manifest" href="/manifest.json" /> */}
         <meta name="theme-color" content="#000000" />
         <link rel="apple-touch-icon" href="/public/icons/application.png" />
       </head>
