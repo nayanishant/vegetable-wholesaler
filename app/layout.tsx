@@ -22,7 +22,7 @@ export default function RootLayout({
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#000000" />
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="apple-touch-icon" href="/public/icons/application.png" />
       </head>
       <body className={`h-screen flex flex-col ${inter.className}`}>
         <Toaster richColors position="top-right" />
