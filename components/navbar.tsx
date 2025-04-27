@@ -7,6 +7,7 @@ import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
+import ProfileAuth from "./ProfileAuth";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -27,7 +28,9 @@ export default function Navbar() {
                 FreshWholesale
               </span>
             </Link>
-
+            <div className="lg:hidden md:hidden sm:hidden">
+              <ProfileAuth session={session} />
+            </div>
             {/* Desktop Nav */}
             <div className="hidden sm:flex sm:items-center sm:space-x-4">
               {/* Products */}
@@ -70,27 +73,7 @@ export default function Navbar() {
               )}
 
               {/* Profile / Auth */}
-              {!session ? (
-                <Link href="/login">
-                  <Button className="bg-green-500 hover:bg-green-600">
-                    Login
-                  </Button>
-                </Link>
-              ) : (
-                <div className="flex items-center gap-3">
-                  {session.user?.image && (
-                    <Link href="/profile">
-                      <Image
-                        src={session.user.image}
-                        alt="Profile"
-                        width={32}
-                        height={32}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                    </Link>
-                  )}
-                </div>
-              )}
+              <ProfileAuth session={session} />
             </div>
           </div>
         </div>
@@ -137,21 +120,6 @@ export default function Navbar() {
               <span>Inventory</span>
             </Link>
           )}
-
-          {session?.user.image ? (
-            <Link
-              href="/profile"
-              className="flex flex-col items-center text-sm text-gray-700"
-            >
-              <Image
-                src={session?.user.image}
-                alt="Profile"
-                width={32}
-                height={32}
-                className="w-8 h-8 rounded-full object-cover"
-              />
-            </Link>
-          ) : ""}
         </div>
       </div>
     </>
