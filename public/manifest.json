@@ -1,6 +1,7 @@
 {
   "name": "Vegetable Seller",
   "short_name": "VS",
+  "id": "/",
   "icons": [
     {
       "src": "icons/icon-48x48.png",
@@ -20,11 +21,6 @@
     {
       "src": "icons/icon-128x128.png",
       "sizes": "128x128",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-144x144.png",
-      "sizes": "144x144",
       "type": "image/png"
     },
     {
@@ -51,6 +47,20 @@
       "src": "icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/narrow.png",
+      "type": "image/png",
+      "sizes": "540x720",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/images/wide.png",
+      "type": "image/jpg",
+      "sizes": "720x540",
+      "form_factor": "wide"
     }
   ],
   "start_url": "/",

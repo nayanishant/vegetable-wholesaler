@@ -11,7 +11,11 @@ export async function middleware(request: NextRequest) {
 
   const publicRoutes = ["/login", "/products", "/cart", "/", "/manifest.json"];
   const isPublic =
-    pathname.startsWith("/api/auth") || publicRoutes.includes(pathname);
+    pathname.startsWith("/api/auth") ||
+    publicRoutes.includes(pathname) ||
+    (pathname.match(/[^\/]+\.(css|js|png|jpg)$/)?.length ?? 0) > 0;
+
+  // console.log(pathname, isPublic);
 
   if (isPublic) {
     return NextResponse.next();
