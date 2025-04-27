@@ -12,17 +12,17 @@ export default function Home() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // const handleBeforeInstallPrompt = (e: Event) => {
-    //   e.preventDefault();
-    //   setDeferredPrompt(e);
-    //   setIsVisible(true);
-    // };
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsVisible(true);
+    };
 
-    // window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // return () => {
-    //   window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    // };
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, []);
 
   const handleInstallClick = async () => {

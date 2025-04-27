@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "FreshWholesale - Premium Vegetable Wholesaler",
   description: "Your trusted partner for wholesale vegetables",
-  manifest: "http://localhost:3000/manifest.json",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
