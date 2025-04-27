@@ -42,7 +42,7 @@ export default function Home() {
 
   return (
     <div className="relative">
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1542838132-92c53300491e')] bg-cover bg-center" />
+      <div className="absolute inset-0 bg-[url('/images/Hero.jfif')] bg-cover bg-center" />
       <div className="absolute inset-0 bg-black/60" />
       <div className="relative min-h-screen flex items-center justify-center text-center px-4">
         <div className="max-w-3xl">

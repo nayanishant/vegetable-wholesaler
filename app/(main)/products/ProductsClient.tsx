@@ -77,7 +77,7 @@ export default function ProductsClient({ products }: { products: Product[] }) {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProducts.map((product) => (
           <Card key={product._id} className="overflow-hidden">
             <div className="aspect-square relative">
@@ -89,8 +89,8 @@ export default function ProductsClient({ products }: { products: Product[] }) {
                 className="object-cover w-full h-full"
               />
             </div>
-            <CardContent className="p-4">
-              <h3 className="text-lg font-semibold">{product.name}</h3>
+            <CardContent className="p-4 text-sm lg:text-lg">
+              <h3 className="font-semibold">{product.name}</h3>
               <p className="text-gray-600">
                 ₹{product.price} per {product.unit}
               </p>
@@ -117,7 +117,7 @@ export default function ProductsClient({ products }: { products: Product[] }) {
               </div>
 
               <Button
-                className="w-full bg-green-500 hover:bg-green-600"
+                className="w-full bg-green-500 hover:bg-green-600 text-sm lg:text-lg"
                 onClick={() => handleAddToCart(product)}
                 disabled={loadingProductId === product._id}
               >

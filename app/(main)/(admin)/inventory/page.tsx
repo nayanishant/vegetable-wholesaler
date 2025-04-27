@@ -56,27 +56,31 @@ export default function Inventory() {
       isAvailable: "true",
     });
     setEditId(null);
+    setImageFile(null);
   };
+  
 
   const handleSubmit = async () => {
     try {
-      const payload = {
+      const basePayload = {
         name: form.name,
         price: parseFloat(form.price),
         unit: form.unit,
         stock: parseInt(form.stock),
         isAvailable: form.isAvailable === "true",
-        image: imageFile,
       };
   
       if (editId) {
         await axios.patch("/api/admin/inventory", {
           id: editId,
-          ...payload,
+          ...basePayload,
         });
         toast.success("Product updated");
       } else {
-        await axios.post("/api/admin/inventory", payload);
+        await axios.post("/api/admin/inventory", {
+          ...basePayload,
+          image: imageFile,
+        });
         toast.success("Product added");
       }
   
@@ -85,7 +89,8 @@ export default function Inventory() {
     } catch (err) {
       toast.error(editId ? "Error updating product" : "Error adding product");
     }
-  };  
+  };
+  
 
   const handleEdit = (item: InventoryItem) => {
     setEditId(item._id);

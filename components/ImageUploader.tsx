@@ -4,6 +4,7 @@ import { useEdgeStore } from "@/lib/edgestore";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface Props {
   onUploadComplete: (file: {
@@ -21,7 +22,13 @@ const ImageUploader: React.FC<Props> = ({ onUploadComplete }) => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
-    if (selected) setFile(selected);
+    if (selected) {
+      if (selected.size > 1048576) {
+        toast.error("Image size must be less than 1MB.");
+        return;
+      }
+      setFile(selected);
+    }
   };
 
   const handleUpload = async () => {
