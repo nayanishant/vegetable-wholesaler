@@ -34,7 +34,7 @@ export default function Checkout() {
 
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { items } = useCart();
+  const { cart } = useCart();
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/login");
@@ -93,7 +93,7 @@ export default function Checkout() {
 
   if (status === "loading") return <div>Loading...</div>;
 
-  const total = items.reduce((sum, item) => {
+  const total = cart.reduce((sum, item) => {
     const product = productMap[item.id];
     return sum + (product?.price || 0) * item.quantity;
   }, 0);
@@ -169,7 +169,7 @@ export default function Checkout() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {items.map((item) => {
+                {cart.map((item) => {
                   const product = productMap[item.id];
                   return (
                     <div key={item.id} className="flex justify-between text-sm">
