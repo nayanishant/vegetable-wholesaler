@@ -1,6 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
-import Navbar from "@/components/navbar";
+import Navbar from "@/components/NavBar/navbar";
 import { CartProvider } from "@/context/CartContext";
 import { EdgeStoreProvider } from "@/lib/edgestore";
 
