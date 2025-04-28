@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/context/CartContext";
 import Image from "next/image";
-import { Loader2, Minus, Plus } from "lucide-react";
+import { Loader2, Minus, Plus, Search } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 interface Product {
@@ -24,32 +23,36 @@ interface Product {
 
 export default function ProductsClient({ products }: { products: Product[] }) {
   const { toast } = useToast();
-  const { addToCart } = useCart();
+  const { cart, addToCart, removeFromCart, adjustCartItemQuantity } = useCart();
   const { status } = useSession();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [loadingProductId, setLoadingProductId] = useState<string | null>(null);
-  const [quantities, setQuantities] = useState<{ [productId: string]: number }>({});
 
-  const handleQuantityChange = (productId: string, delta: number) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [productId]: Math.max(1, (prev[productId] || 1) + delta),
-    }));
+  const getQuantityInCart = (productId: string) => {
+    const item = cart.find((item) => item.id === productId);
+    return item ? item.quantity : 0;
   };
 
   const handleAddToCart = (product: Product) => {
-    const quantity = quantities[product._id] || 1;
-    setLoadingProductId(product._id);
+    addToCart({
+      id: product._id,
+      name: product.name,
+      price: product.price,
+      image: product.image?.url,
+      quantity: 1,
+    });
+    toast({
+      title: "Added to cart",
+      description: `${product.name} added to cart.`,
+    });
+  };
 
-    setTimeout(() => {
-      addToCart({ ...product, id: product._id, quantity });
-      toast({
-        title: "Added to cart",
-        description: `${product.name} (x${quantity}) added to your cart.`,
-      });
-      setLoadingProductId(null);
-    }, 600);
+  const handleIncrease = (productId: string) => {
+    adjustCartItemQuantity(productId, 1);
+  };
+
+  const handleDecrease = (productId: string) => {
+    adjustCartItemQuantity(productId, -1);
   };
 
   const filteredProducts = products.filter((product) =>
@@ -68,68 +71,76 @@ export default function ProductsClient({ products }: { products: Product[] }) {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-4">Our Products</h1>
-        <input
-          type="text"
-          placeholder="Search products..."
-          className="w-full max-w-md px-4 py-2 border rounded-lg"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Search products..."
+            className="pl-10 pr-4 py-2 w-full border rounded-lg"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProducts.map((product) => (
-          <Card key={product._id} className="overflow-hidden">
-            <div className="aspect-square relative">
-              <Image
-                src={product.image?.url || "/default-image.jpg"}
-                alt={product.name}
-                width={300}
-                height={300}
-                className="object-cover w-full h-full"
-              />
-            </div>
-            <CardContent className="p-4 text-sm lg:text-lg">
-              <h3 className="font-semibold">{product.name}</h3>
-              <p className="text-gray-600">
-                ₹{product.price} per {product.unit}
-              </p>
-            </CardContent>
-            <CardFooter className="p-4 pt-0 flex flex-col gap-2">
-              <div className="flex items-center justify-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handleQuantityChange(product._id, -1)}
-                >
-                  <Minus className="w-4 h-4" />
-                </Button>
-                <span className="text-lg font-medium w-8 text-center">
-                  {quantities[product._id] || 1}
-                </span>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handleQuantityChange(product._id, 1)}
-                >
-                  <Plus className="w-4 h-4" />
-                </Button>
+        {filteredProducts.map((product) => {
+          const quantityInCart = getQuantityInCart(product._id);
+
+          return (
+            <div
+              key={product._id}
+              className="border rounded-lg overflow-hidden shadow-sm"
+            >
+              <div className="aspect-square relative">
+                <Image
+                  src={product.image?.url || "/default-image.jpg"}
+                  alt={product.name}
+                  width={300}
+                  height={300}
+                  className="object-cover w-full h-full"
+                />
+              </div>
+              <div className="p-4 text-sm lg:text-lg">
+                <h3 className="font-semibold">{product.name}</h3>
+                <p className="text-gray-600">
+                  ₹{product.price} per {product.unit}
+                </p>
               </div>
 
-              <Button
-                className="w-full bg-green-500 hover:bg-green-600 text-sm lg:text-lg"
-                onClick={() => handleAddToCart(product)}
-                disabled={loadingProductId === product._id}
-              >
-                {loadingProductId === product._id ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+              <div className="p-4 pt-0 flex flex-col gap-2">
+                {quantityInCart > 0 ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handleDecrease(product._id)}
+                    >
+                      <Minus className="w-4 h-4" />
+                    </Button>
+                    <span className="text-lg font-medium w-8 text-center">
+                      {quantityInCart}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handleIncrease(product._id)}
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
                 ) : (
-                  "Add to Cart"
+                  <Button
+                    className="w-full bg-green-500 hover:bg-green-600 text-sm lg:text-lg"
+                    onClick={() => handleAddToCart(product)}
+                  >
+                    Add
+                  </Button>
                 )}
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+              </div>
+            </div>
+          );
+        })}
         {!filteredProducts.length && (
           <p className="text-gray-500 col-span-full text-center">
             No products available right now.

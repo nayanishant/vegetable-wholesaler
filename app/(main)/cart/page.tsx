@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Minus, Plus, Trash2, Loader2 } from 'lucide-react';
-import { useCart } from '@/context/CartContext';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import axios from 'axios';
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Minus, Plus, Trash2, Loader2 } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 interface InventoryItem {
   _id: string;
@@ -21,54 +21,54 @@ interface InventoryItem {
 }
 
 export default function Cart() {
-  const { items, updateQuantity } = useCart();
+  const { cart, adjustCartItemQuantity } = useCart();
   const { status } = useSession();
   const router = useRouter();
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [productData, setProductData] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const fetchInventory = async () => {
     try {
-      const { data } = await axios.get<InventoryItem[]>('/api/products');
+      const { data } = await axios.get<InventoryItem[]>("/api/products");
       setProductData(data);
     } catch (error) {
-      console.error("Error loading product info:", error);
+      console.error("❌ Error fetching product data:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (status === 'authenticated') fetchInventory();
+    if (status === "authenticated") fetchInventory();
   }, [status]);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
+    if (status === "unauthenticated") {
+      router.push("/login");
     }
   }, [status, router]);
 
-  if (status === 'loading' || loading) {
+  if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex cart-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-green-600" />
         <span className="ml-2 text-sm text-gray-600">Loading cart...</span>
       </div>
     );
   }
 
-  // Map local cart to full product info
-  const mergedItems = items.map((cartItem) => {
+  // Merge cart cart with full product info
+  const mergedcart = cart.map((cartItem) => {
     const fullItem = productData.find((p) => p._id === cartItem.id);
     return {
       ...cartItem,
-      name: fullItem?.name || 'Unknown Product',
+      name: fullItem?.name || "Unknown Product",
       price: fullItem?.price || 0,
     };
   });
 
-  const total = mergedItems.reduce(
+  const total = mergedcart.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
@@ -76,11 +76,11 @@ export default function Cart() {
   const handleCheckout = () => {
     setCheckoutLoading(true);
     setTimeout(() => {
-      router.push('/checkout');
+      router.push("/checkout");
     }, 700);
   };
 
-  if (mergedItems.length === 0) {
+  if (mergedcart.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center pb-20">
         <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
@@ -99,45 +99,47 @@ export default function Cart() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
-          {mergedItems.map((item) => (
+          {mergedcart.map((item) => (
             <Card key={item.id}>
-              <CardContent className="p-4 flex items-center gap-4">
+              <CardContent className="p-4 flex cart-center gap-4">
                 <Image
-                  src={item.image?.url || "/default-image.jpg"}
-                  alt={item.name}
+                  src={item.image || "/default-image.jpg"}
+                  alt={item.name || "Product Image"}
                   width={100}
                   height={100}
-                  className="object-cover w-50 h-50 rounded"
+                  className="object-cover w-24 h-24 rounded"
                 />
                 <div className="flex-1">
                   <h3 className="font-semibold">{item.name}</h3>
-                  <p className="text-gray-600">₹{item.price}</p>
+                  <p className="text-gray-600">₹{item.price.toFixed(2)}</p>
                 </div>
-                <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 max-w-full">
+                <div className="flex cart-center gap-2 h-10 items-center">
                   <Button
                     variant="outline"
                     size="icon"
                     className="w-6 h-6 sm:w-8 sm:h-8"
-                    onClick={() => updateQuantity(item.id, -1)}
+                    onClick={() => adjustCartItemQuantity(item.id, -1)}
                   >
-                    <Minus className="h-4 w-4" />
+                    <Minus className="w-4 h-4 sm:w-6 sm:h-6" />
                   </Button>
-                  <span className="w-8 text-center">{item.quantity}</span>
+                  <span className="w-6 text-center">{item.quantity}</span>
                   <Button
                     variant="outline"
                     size="icon"
                     className="w-6 h-6 sm:w-8 sm:h-8"
-                    onClick={() => updateQuantity(item.id, 1)}
+                    onClick={() => adjustCartItemQuantity(item.id, 1)}
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="w-4 h-4" />
                   </Button>
                   <Button
                     variant="destructive"
                     size="icon"
                     className="w-6 h-6 sm:w-8 sm:h-8"
-                    onClick={() => updateQuantity(item.id, -item.quantity)}
+                    onClick={() =>
+                      adjustCartItemQuantity(item.id, -item.quantity)
+                    }
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
               </CardContent>
@@ -172,12 +174,12 @@ export default function Cart() {
                   disabled={checkoutLoading}
                 >
                   {checkoutLoading ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex cart-center gap-2">
                       <Loader2 className="h-5 w-5 animate-spin" />
                       Redirecting...
                     </div>
                   ) : (
-                    'Proceed to Checkout'
+                    "Proceed to Checkout"
                   )}
                 </Button>
               </div>

@@ -10,97 +10,92 @@ import {
 
 interface StoredCartItem {
   id: string;
+  name: string;
+  price: number;
   quantity: number;
-  image?: { url: string };
-}
-
-interface FullCartItem extends StoredCartItem {
-  name?: string;
-  price?: number;
+  image?: string; // store image URL directly as string
 }
 
 interface CartContextType {
-  items: StoredCartItem[];
+  cart: StoredCartItem[];
   addToCart: (item: StoredCartItem) => void;
-  updateQuantity: (id: string, change: number) => void;
+  removeFromCart: (id: string) => void;
+  adjustCartItemQuantity: (id: string, quantity: number) => void;
   getCartCount: () => number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<StoredCartItem[]>([]);
+  const [cart, setCart] = useState<StoredCartItem[]>([]);
   const [cartLoaded, setCartLoaded] = useState(false);
 
-  // ✅ Load from localStorage
+  // ✅ Load cart from localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("cart");
-    if (stored) {
+    const storedCart = localStorage.getItem("cart");
+    if (storedCart) {
       try {
-        const parsed = JSON.parse(stored);
+        const parsed = JSON.parse(storedCart);
         if (Array.isArray(parsed)) {
-          setItems(parsed);
+          setCart(parsed);
         }
-      } catch (err) {
-        console.error("❌ Failed to parse cart from localStorage", err);
+      } catch (error) {
+        console.error("Failed to parse cart from localStorage:", error);
       }
     }
     setCartLoaded(true);
   }, []);
 
-  // ✅ Save only essential data to localStorage
+  // ✅ Save cart to localStorage
   useEffect(() => {
     if (cartLoaded) {
-      localStorage.setItem("cart", JSON.stringify(items));
+      localStorage.setItem("cart", JSON.stringify(cart));
     }
-  }, [items, cartLoaded]);
+  }, [cart, cartLoaded]);
 
-  const addToCart = (product: {
-    id: string;
-    quantity: number;
-    image?: { url?: string };
-  }) => {
-    const itemToStore: StoredCartItem = {
-      id: product.id,
-      quantity: product.quantity,
-      image: product.image?.url ? { url: product.image.url } : undefined,
-    };
-
-    setItems((currentItems) => {
-      const existingItem = currentItems.find(
-        (item) => item.id === itemToStore.id
-      );
+  const addToCart = (product: StoredCartItem) => {
+    setCart((currentCart) => {
+      const existingItem = currentCart.find((item) => item.id === product.id);
       if (existingItem) {
-        return currentItems.map((item) =>
-          item.id === itemToStore.id
-            ? { ...item, quantity: item.quantity + itemToStore.quantity }
+        return currentCart.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + product.quantity }
             : item
         );
+      } else {
+        return [...currentCart, product];
       }
-      return [...currentItems, itemToStore];
     });
   };
 
-  const updateQuantity = (id: string, change: number) => {
-    setItems((currentItems) =>
-      currentItems
+  const removeFromCart = (id: string) => {
+    setCart((currentCart) => currentCart.filter((item) => item.id !== id));
+  };
+
+  const adjustCartItemQuantity = (id: string, delta: number) => {
+    setCart((currentCart) =>
+      currentCart
         .map((item) =>
-          item.id === id
-            ? { ...item, quantity: Math.max(0, item.quantity + change) }
-            : item
+          item.id === id ? { ...item, quantity: item.quantity + delta } : item
         )
         .filter((item) => item.quantity > 0)
     );
   };
 
   const getCartCount = () =>
-    items.reduce((total, item) => total + item.quantity, 0);
+    cart.reduce((total, item) => total + item.quantity, 0);
 
   if (!cartLoaded) return null;
 
   return (
     <CartContext.Provider
-      value={{ items, addToCart, updateQuantity, getCartCount }}
+      value={{
+        cart,
+        addToCart,
+        removeFromCart,
+        adjustCartItemQuantity,
+        getCartCount,
+      }}
     >
       {children}
     </CartContext.Provider>
