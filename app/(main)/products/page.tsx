@@ -3,7 +3,7 @@ import ProductsClient from "./ProductsClient";
 
 export const revalidate = 30;
 
-export default async function ProductsPage() {
+export default async function Products() {
   const products = await getProducts();
 
   return <ProductsClient products={products} />;

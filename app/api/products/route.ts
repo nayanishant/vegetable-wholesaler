@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
       createdBy: item.createdBy?.toString(),
       createdAt: item.createdAt?.toISOString(),
       updatedAt: item.updatedAt?.toISOString(),
+      category: item.category || "Others",
     }));
 
     return NextResponse.json(sanitized);

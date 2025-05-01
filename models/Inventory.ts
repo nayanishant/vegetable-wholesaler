@@ -62,6 +62,7 @@ const inventorySchema = new Schema<IInventory>(
     category: {
       type: String,
       trim: true,
+      required: true
     },
     isAvailable: {
       type: Boolean,

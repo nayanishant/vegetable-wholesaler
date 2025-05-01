@@ -1,18 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import { useCart } from "@/context/CartContext";
 import Image from "next/image";
 import { Loader2, Minus, Plus, Search } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 interface Product {
   _id: string;
   name: string;
   price: number;
   unit: string;
+  category: string;
   image?: {
     url: string;
     size?: number;
@@ -22,8 +30,8 @@ interface Product {
 }
 
 export default function ProductsClient({ products }: { products: Product[] }) {
-  const { toast } = useToast();
-  const { cart, addToCart, removeFromCart, adjustCartItemQuantity } = useCart();
+  const { cart, addToCart, adjustCartItemQuantity } = useCart();
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const { status } = useSession();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -41,8 +49,7 @@ export default function ProductsClient({ products }: { products: Product[] }) {
       image: product.image?.url,
       quantity: 1,
     });
-    toast({
-      title: "Added to cart",
+    toast.success("Added to cart", {
       description: `${product.name} added to cart.`,
     });
   };
@@ -55,9 +62,21 @@ export default function ProductsClient({ products }: { products: Product[] }) {
     adjustCartItemQuantity(productId, -1);
   };
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Normalize products to ensure every product has a defined category
+  const normalizedProducts = products.map((p) => ({
+    ...p,
+    category: p.category || "Others",
+  }));
+
+  // Now apply filtering on normalized data
+  const filteredProducts = normalizedProducts.filter((product) => {
+    const matchesSearch = product.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "All" || product.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   if (status === "loading") {
     return (
@@ -66,6 +85,10 @@ export default function ProductsClient({ products }: { products: Product[] }) {
       </div>
     );
   }
+
+  const categories = Array.from(
+    new Set(normalizedProducts.map((p) => p.category))
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
@@ -80,6 +103,21 @@ export default function ProductsClient({ products }: { products: Product[] }) {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+        </div>
+        <div className="w-full max-w-xs mt-4">
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="mt-1" id="category">
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All</SelectItem>
+              {categories.map((cat) => (
+                <SelectItem key={cat} value={cat}>
+                  {cat}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

@@ -8,6 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import ImageUploader from "@/components/ImageUploader";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface InventoryItem {
   _id: string;
@@ -15,6 +22,7 @@ interface InventoryItem {
   price: number;
   unit: string;
   stock: number;
+  category: string;
   isAvailable: boolean;
 }
 
@@ -26,6 +34,7 @@ export default function Inventory() {
     price: "",
     unit: "kg",
     stock: "",
+    category: "",
     isAvailable: "true",
   });
   const [imageFile, setImageFile] = useState<any>(null);
@@ -53,12 +62,12 @@ export default function Inventory() {
       price: "",
       unit: "kg",
       stock: "",
+      category: "",
       isAvailable: "true",
     });
     setEditId(null);
     setImageFile(null);
   };
-  
 
   const handleSubmit = async () => {
     try {
@@ -67,9 +76,10 @@ export default function Inventory() {
         price: parseFloat(form.price),
         unit: form.unit,
         stock: parseInt(form.stock),
+        category: form.category,
         isAvailable: form.isAvailable === "true",
       };
-  
+
       if (editId) {
         await axios.patch("/api/admin/inventory", {
           id: editId,
@@ -83,14 +93,13 @@ export default function Inventory() {
         });
         toast.success("Product added");
       }
-  
+
       resetForm();
       fetchInventory();
     } catch (err) {
       toast.error(editId ? "Error updating product" : "Error adding product");
     }
   };
-  
 
   const handleEdit = (item: InventoryItem) => {
     setEditId(item._id);
@@ -99,6 +108,7 @@ export default function Inventory() {
       price: item.price.toString(),
       unit: item.unit,
       stock: item.stock.toString(),
+      category: item.category || "",
       isAvailable: item.isAvailable.toString(),
     });
   };
@@ -144,15 +154,41 @@ export default function Inventory() {
             value={form.stock}
             onChange={(e) => setForm({ ...form, stock: e.target.value })}
           />
+          <div className="flex gap-4 col-span-1 sm:col-span-2">
+            <div className="flex-1">
+              <Select
+                value={form.isAvailable}
+                onValueChange={(value) =>
+                  setForm({ ...form, isAvailable: value })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Availability" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="true">Available</SelectItem>
+                  <SelectItem value="false">Unavailable</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex-1">
+              <Select
+                value={form.category}
+                onValueChange={(value) => setForm({ ...form, category: value })}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="vegetables">Vegetables</SelectItem>
+                  <SelectItem value="fruits">Fruits</SelectItem>
+                  <SelectItem value="spices">Spices</SelectItem>
+                  <SelectItem value="others">Others</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
           <ImageUploader onUploadComplete={(file) => setImageFile(file)} />
-          <select
-            className="border rounded px-2 py-1"
-            value={form.isAvailable}
-            onChange={(e) => setForm({ ...form, isAvailable: e.target.value })}
-          >
-            <option value="true">Available</option>
-            <option value="false">Unavailable</option>
-          </select>
           <div className="col-span-1 sm:col-span-2 flex gap-2">
             <Button className="bg-green-500" onClick={handleSubmit}>
               {editId ? "Update Product" : "Add Product"}

@@ -11,6 +11,7 @@ export async function getProducts() {
     name: item.name,
     price: item.price,
     unit: item.unit,
+    category: item.category,
     image: item.image || null,
   }));
 }
