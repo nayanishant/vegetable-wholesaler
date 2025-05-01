@@ -29,7 +29,9 @@ export default function Checkout() {
   const [isLoading, setIsLoading] = useState(false);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [phone, setPhone] = useState<string>("");
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null
+  );
   const [productMap, setProductMap] = useState<Record<string, ProductInfo>>({});
 
   const { data: session, status } = useSession();
@@ -46,7 +48,9 @@ export default function Checkout() {
         const { data } = await axios.get("/api/profile");
         setAddresses(data.user.address || []);
         setPhone(data.user.phone || "");
-        const defaultAddr = data.user.address?.find((a: Address) => a.isDefault);
+        const defaultAddr = data.user.address?.find(
+          (a: Address) => a.isDefault
+        );
         if (defaultAddr?._id) setSelectedAddressId(defaultAddr._id);
       } catch {
         toast.error("Failed to load addresses");
@@ -82,13 +86,52 @@ export default function Checkout() {
       return;
     }
 
-    // Simulate checkout
-    setTimeout(() => {
+    const shippingAddress = addresses.find(
+      (addr) => addr._id === selectedAddressId
+    );
+    if (!shippingAddress) {
+      toast.error("Invalid address selected");
       setIsLoading(false);
+      return;
+    }
+
+    const items = cart.map((item) => {
+      const product = productMap[item.id];
+      return {
+        productId: item.id,
+        name: product?.name || "Unknown",
+        image: item.image || "",
+        quantity: item.quantity,
+        price: product?.price || 0,
+      };
+    });
+
+    const totalPrice = items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    try {
+      const { data } = await axios.post("/api/orders", {
+        items,
+        shippingAddress,
+        totalPrice,
+      });
+
       toast.success("Order Placed!", {
         description: "Your order has been successfully placed.",
       });
-    }, 700);
+
+      // Optionally: redirect or clear cart
+      // clearCart();
+      router.push("/orders");
+    } catch (err: any) {
+      toast.error("Order failed", {
+        description: err.response?.data?.error || "Something went wrong.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (status === "loading") return <div>Loading...</div>;
@@ -140,7 +183,9 @@ export default function Checkout() {
                           size="sm"
                           variant={selected ? "default" : "outline"}
                           onClick={() => setSelectedAddressId(addr._id!)}
-                          className={selected ? "bg-green-600 hover:bg-green-700" : ""}
+                          className={
+                            selected ? "bg-green-600 hover:bg-green-700" : ""
+                          }
                         >
                           {selected ? "Selected" : "Select"}
                         </Button>
@@ -154,7 +199,7 @@ export default function Checkout() {
                   className="w-full bg-green-500 hover:bg-green-600"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Processing..." : "Place Order"}
+                  {isLoading ? "Processing..." : "Proceed to payment"}
                 </Button>
               </form>
             </CardContent>
