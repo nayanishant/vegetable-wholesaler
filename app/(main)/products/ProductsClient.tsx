@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -112,7 +112,7 @@ export default function ProductsClient({ products }: { products: Product[] }) {
             <SelectContent>
               <SelectItem value="All">All</SelectItem>
               {categories.map((cat) => (
-                <SelectItem key={cat} value={cat}>
+                <SelectItem key={cat} value={cat} className="capitalize">
                   {cat}
                 </SelectItem>
               ))}
