@@ -2,21 +2,18 @@ import { getProducts } from "@/lib/getProducts";
 import CategoryClient from "./CategoryClient";
 import { Product } from "@/types/product";
 
-export default async function CategoryPage({
-  params,
-}: {
+interface CategoryPageProps {
   params: { category: string };
-}) {
-  const { category } = await params;
-  const categoryParam = category.toLowerCase();
+}
+
+export default async function CategoryPage({ params }: CategoryPageProps) {
+  const categoryParam = params.category.toLowerCase();
 
   const allProducts: Product[] = await getProducts();
 
-  const filteredProducts: Product[] = allProducts.filter(
-    (product) => product.category?.toLowerCase() === categoryParam
+  const filteredProducts = allProducts.filter((product) =>
+    product.category?.toLowerCase() === categoryParam
   );
 
-  return (
-    <CategoryClient category={categoryParam} products={filteredProducts} />
-  );
+  return <CategoryClient category={categoryParam} products={filteredProducts} />;
 }
