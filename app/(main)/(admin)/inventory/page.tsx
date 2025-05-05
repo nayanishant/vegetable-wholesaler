@@ -113,16 +113,30 @@ export default function Inventory() {
     });
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await axios.delete("/api/admin/inventory", {
-        data: { deleteId: id },
-      });
-      toast.success("Product deleted");
-      fetchInventory();
-    } catch (err) {
-      toast.error("Error deleting product");
-    }
+  const handleDelete = (id: string, name: string) => {
+    toast(`Delete "${name}"?`, {
+      description: "This action cannot be undone.",
+      icon: <Trash2 className="text-red-500" />,
+      action: {
+        label: "Delete",
+        onClick: async () => {
+          try {
+            await axios.delete("/api/admin/inventory", {
+              data: { deleteId: id },
+            });
+            toast.success(`"${name}" deleted`);
+            fetchInventory();
+          } catch (err) {
+            toast.error(`Failed to delete "${name}"`);
+          }
+        },
+      },
+      cancel: {
+        label: "Cancel",
+        onClick: () => {},
+      },
+      duration: 8000,
+    });
   };
 
   return (
@@ -231,7 +245,7 @@ export default function Inventory() {
                     <Button
                       variant="destructive"
                       size="icon"
-                      onClick={() => handleDelete(item._id)}
+                      onClick={() => handleDelete(item._id, item.name)}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>

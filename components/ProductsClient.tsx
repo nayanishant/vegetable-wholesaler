@@ -72,9 +72,9 @@ export default function ProductsClient({ products }: { products: Product[] }) {
       {Object.entries(grouped).map(([category, items]) => (
         <div
           key={category}
-          className="relative bg-gray-50 rounded-xl shadow-md mb-10 p-6"
+          className="relative bg-gray-100 rounded-xl shadow-none lg:shadow-md mb-10 p-3 lg:p-6"
         >
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-2 lg:mb-4">
             <h2 className="text-2xl font-semibold capitalize">{category}</h2>
             <Link href={`/category/${encodeURIComponent(category)}`}>
               <Button variant="link" className="text-green-600 text-sm">
@@ -98,7 +98,7 @@ export default function ProductsClient({ products }: { products: Product[] }) {
 
           <div
             ref={(el) => (containerRefs.current[category] = el)}
-            className="flex gap-4 overflow-x-auto scroll-smooth scrollbar-hide px-1 py-4"
+            className="flex gap-2 lg:gap-4 overflow-x-auto scroll-smooth scrollbar-hide px-1 py-2 lg:py-4"
           >
             {items.map((p, i) => (
               <div key={p._id} className="flex-shrink-0 w-32 lg:w-64">
