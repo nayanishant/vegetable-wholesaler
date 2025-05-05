@@ -1,5 +1,5 @@
 import { getProducts } from "@/lib/getProducts";
-import ProductsClient from "./ProductsClient";
+import ProductsClient from "../../../components/ProductsClient";
 
 export const revalidate = 30;
 

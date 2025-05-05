@@ -1,10 +1,15 @@
 import dbConnect from "@/lib/dbConnect";
 import Inventory from "@/models/Inventory";
+import { Product } from "@/types/product";
 
-export async function getProducts() {
+export async function getProducts(category?: string): Promise<Product[]> {
   await dbConnect();
 
-  const items = await Inventory.find().lean();
+  const query = category
+    ? { category: { $regex: new RegExp(`^${category}$`, "i") } }
+    : {};
+
+  const items = await Inventory.find(query).lean();
 
   return items.map((item: any) => ({
     _id: item._id.toString(),
