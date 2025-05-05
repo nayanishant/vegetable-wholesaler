@@ -27,7 +27,7 @@ export default function Home() {
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
-    const promptEvent = deferredPrompt as any; // typescript fix
+    const promptEvent = deferredPrompt as any;
     promptEvent.prompt();
     const { outcome } = await promptEvent.userChoice;
 

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Loader2, Leaf } from "lucide-react";
@@ -18,7 +17,6 @@ import {
 
 export default function Login() {
   const [googleLoading, setGoogleLoading] = useState(false);
-  const router = useRouter();
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
@@ -38,7 +36,7 @@ export default function Login() {
             <Leaf className="h-8 w-8 text-green-500" />
             <span className="text-2xl font-bold">FreshWholesale</span>
           </div>
-          <CardTitle className="text-2xl">Welcome back</CardTitle>
+          <CardTitle className="text-2xl">Welcome</CardTitle>
           <CardDescription>
             Sign in with your Google account to continue
           </CardDescription>
